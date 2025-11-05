@@ -222,3 +222,7 @@ section {
   margin-bottom: 2rem;
 }
 
+.text-indigo-600 {
+  --tw-text-opacity: 1;
+  color: black;
+}
