@@ -69,3 +69,27 @@ textarea {
 .animate-fade-in {
   animation: fade-in 0.2s ease-out;
 }
+
+/* === Personalización del calendario === */
+.react-calendar__navigation button {
+  color: #111111 !important; /* Color negro minimalista */
+}
+
+.react-calendar__navigation button:disabled {
+  color: #aaa !important;
+}
+
+.react-calendar__tile--active {
+  background: #111111 !important;
+  color: #fff !important;
+}
+
+.react-calendar__tile--now {
+  background: #f0eae1 !important;
+  color: #111111 !important;
+}
+
+.react-calendar__tile:hover {
+  background: #e6e3dd !important;
+}
+
