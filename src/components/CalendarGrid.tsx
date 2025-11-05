@@ -12,7 +12,7 @@
         className={`p-3 rounded-xl border text-center transition-all shadow-soft ${
           isToday
             ? "bg-[var(--color-accent)] font-semibold"
-            : "bg-white hover:bg-[var(--color-accent)]/30"
+            : "bg-white hover:bg-[var(--color-accent)]/40"
         }`}
       >
         <span>{day}</span>
