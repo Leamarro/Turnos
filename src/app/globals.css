@@ -2,15 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === ESTILO GLOBAL MINIMALISTA === */
+/* === Estilo Global BeatMakeup === */
+:root {
+  --color-bg: #f5f3ef; /* Beige claro */
+  --color-text: #111111; /* Negro suave */
+  --color-accent: #e8c9c1; /* Rosa maquillaje */
+  --color-border: #ddd;
+}
+
 body {
-  background-color: #f5f3ef;
-  color: #111111;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: 'Inter', sans-serif;
 }
 
+/* Enlaces */
 a {
-  color: #111111;
+  color: var(--color-text);
   text-decoration: none;
   transition: opacity 0.2s ease;
 }
@@ -19,7 +27,39 @@ a:hover {
   opacity: 0.7;
 }
 
-/* Animación sutil */
+/* Botones */
+button,
+input[type="submit"] {
+  background-color: var(--color-accent);
+  color: var(--color-text);
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+button:hover,
+input[type="submit"]:hover {
+  opacity: 0.8;
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  width: 100%;
+}
+
+/* Sombras suaves */
+.shadow-soft {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Animación */
 @keyframes fade-in {
   from {
     opacity: 0;
