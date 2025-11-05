@@ -49,95 +49,47 @@ export default function AppointmentPage() {
         Reservar Turno
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Nombre */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-          />
-        </div>
+    <form
+  onSubmit={handleSubmit}
+  className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-soft space-y-4"
+>
+  <h2 className="text-xl font-semibold mb-4 text-center">Reservar turno</h2>
 
-        {/* Teléfono */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Teléfono
-          </label>
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Ej: 11 5555-5555"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-            pattern="[0-9+\s-]{8,15}"
-            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-          />
-        </div>
+  <div>
+    <label className="block text-sm mb-1">Nombre</label>
+    <input type="text" name="name" className="focus:ring-1 focus:ring-[var(--color-accent)]" />
+  </div>
 
-        {/* Servicio */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Servicio
-          </label>
-          <select
-            name="service"
-            value={formData.service}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-          >
-            <option value="">Seleccioná un servicio</option>
-            <option value="Maquillaje">Maquillaje</option>
-            <option value="Perfilado de cejas">Perfilado de cejas</option>
-          </select>
-        </div>
+  <div>
+    <label className="block text-sm mb-1">Teléfono</label>
+    <input type="text" name="phone" className="focus:ring-1 focus:ring-[var(--color-accent)]" />
+  </div>
 
-        {/* Fecha */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Fecha
-          </label>
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-          />
-        </div>
+  <div>
+    <label className="block text-sm mb-1">Servicio</label>
+    <select name="service" className="focus:ring-1 focus:ring-[var(--color-accent)]">
+      {/* Opciones */}
+    </select>
+  </div>
 
-        {/* Hora */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Hora
-          </label>
-          <input
-            type="time"
-            name="time"
-            value={formData.time}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-          />
-        </div>
+  <div className="flex gap-4">
+    <div className="flex-1">
+      <label className="block text-sm mb-1">Fecha</label>
+      <input type="date" name="date" className="focus:ring-1 focus:ring-[var(--color-accent)]" />
+    </div>
+    <div className="flex-1">
+      <label className="block text-sm mb-1">Hora</label>
+      <input type="time" name="time" className="focus:ring-1 focus:ring-[var(--color-accent)]" />
+    </div>
+  </div>
 
-        {/* Botón */}
-        <button
-          type="submit"
-          className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
-        >
-          Confirmar Turno
-        </button>
-      </form>
+  <input
+    type="submit"
+    value="Confirmar turno"
+    className="w-full mt-4 bg-[var(--color-accent)] text-black py-2 rounded-lg font-medium hover:opacity-80"
+  />
+</form>
+
     </div>
   )
 }
