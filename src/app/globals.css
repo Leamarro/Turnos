@@ -93,3 +93,8 @@ textarea {
   background: #e6e3dd !important;
 }
 
+.react-calendar__navigation__label__labelText {
+  text-transform: capitalize !important;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
