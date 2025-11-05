@@ -19,7 +19,7 @@ a:hover {
   opacity: 0.7;
 }
 
-/* Animación sutil para modales o menús */
+/* Animación sutil */
 @keyframes fade-in {
   from {
     opacity: 0;
