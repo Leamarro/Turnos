@@ -2,22 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === Estilo Global BeatMakeup === */
-:root {
-  --color-bg: #f5f3ef; /* Beige claro */
-  --color-text: #111111; /* Negro suave */
-  --color-accent: #e8c9c1; /* Rosa maquillaje */
-  --color-border: #ddd;
-}
-
+/* === ESTILO GLOBAL MINIMALISTA === */
 body {
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  background-color: #f5f3ef;
+  color: #111111;
   font-family: 'Inter', sans-serif;
 }
 
 a {
-  color: var(--color-text);
+  color: #111111;
   text-decoration: none;
   transition: opacity 0.2s ease;
 }
@@ -26,35 +19,12 @@ a:hover {
   opacity: 0.7;
 }
 
-/* Botones */
-button {
-  background: transparent;
-  color: var(--color-text);
-  transition: opacity 0.2s ease, transform 0.1s ease;
+/* ===== CONTENEDORES Y ELEMENTOS ===== */
+.container {
+  max-width: 1100px;
 }
 
-button:hover {
-  opacity: 0.7;
-  transform: scale(1.05);
-}
-
-/* Inputs */
-input,
-select,
-textarea {
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  background: white;
-  width: 100%;
-}
-
-/* Sombras suaves */
-.shadow-soft {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-/* Animación */
+/* Animación sutil */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -70,178 +40,27 @@ textarea {
   animation: fade-in 0.2s ease-out;
 }
 
-/* === Personalización del calendario === */
-.react-calendar__navigation button {
-  color: #111111 !important; /* Color negro minimalista */
-}
-
-.react-calendar__navigation button:disabled {
-  color: #aaa !important;
-}
-
-.react-calendar__tile--active {
-  background: #111111 !important;
-  color: #fff !important;
-}
-
-.react-calendar__tile--now {
-  background: #f0eae1 !important;
-  color: #111111 !important;
-}
-
-.react-calendar__tile:hover {
-  background: #e6e3dd !important;
-}
-
-.react-calendar__navigation__label__labelText {
-  text-transform: capitalize !important;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-
-/* === PALETA BEATMAKEUP ===
-   Fondo: #f5f3ef
-   Principal (texto): #111111
-   Acento: #e6e3dd
-   Activo: #111111
-*/
-
-/* === NAVBAR & ESTRUCTURA === */
-header {
-  background-color: #ffffff;
-  border-bottom: 1px solid #ddd;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-}
-
-/* === CALENDARIO === */
-.react-calendar {
-  background: #ffffff;
-  border: 1px solid #e6e3dd;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-
-.react-calendar__navigation button {
-  color: #111111 !important;
-  font-weight: 500;
-}
-
-.react-calendar__navigation__label__labelText {
-  text-transform: capitalize !important;
-  font-size: 1.1rem;
-  letter-spacing: 0.3px;
-}
-
-.react-calendar__tile {
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.react-calendar__tile:hover {
-  background: #e6e3dd !important;
-}
-
-.react-calendar__tile--now {
-  background: #f0ece6 !important;
-  color: #111111 !important;
-}
-
-.react-calendar__tile--active {
-  background: #111111 !important;
-  color: #ffffff !important;
-}
-
-/* === FORMULARIO DE RESERVA === */
-form {
-  background-color: #ffffff;
-  border: 1px solid #e6e3dd;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-
-form label {
-  font-weight: 500;
-  color: #111111;
-  margin-bottom: 0.25rem;
-  display: block;
-}
-
-form input,
-form select,
-form textarea {
-  width: 100%;
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f7;
-  color: #111111;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-
-form input:focus,
-form select:focus,
-form textarea:focus {
-  outline: none;
-  border-color: #111111;
-  background-color: #ffffff;
-}
-
-/* === BOTONES === */
-button,
-.btn {
-  background-color: #111111;
-  color: #ffffff;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  border: none;
-  font-weight: 500;
-  transition: opacity 0.2s ease, transform 0.1s ease;
-}
-
-button:hover,
-.btn:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* === TITULOS === */
-h1, h2, h3 {
-  color: #111111;
-  letter-spacing: 0.3px;
-}
-
-section {
-  margin-bottom: 2rem;
-}
-
-.text-indigo-600 {
-  --tw-text-opacity: 1;
-  color: black !important;
-}
-
-
-/* ==== REACT DAY PICKER OVERRIDES ==== */
+/* ==== CALENDARIO (REACT-DAY-PICKER) ==== */
 .rdp {
-  --rdp-accent-color: #111 !important; /* Color de selección y flechas */
+  --rdp-accent-color: #111 !important; /* color principal (flechas, selección) */
   --rdp-accent-background-color: #111 !important;
   --rdp-background-color: #fff;
   --rdp-outline: none;
+  font-family: 'Inter', sans-serif;
 }
 
 .rdp-button_reset {
-  color: #111 !important; /* Flechas del mes */
+  color: #111 !important; /* flechas del mes */
 }
 
 .rdp-nav_button {
   color: #111 !important;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.rdp-nav_button:hover {
+  opacity: 1;
 }
 
 .rdp-caption_label {
@@ -259,4 +78,51 @@ section {
 .rdp-day_selected {
   background-color: #111 !important;
   color: white !important;
+  border-radius: 6px;
+}
+
+/* Día ocupado */
+.rdp-day[data-ocupado="true"],
+.rdp-day_occupied {
+  background-color: #d1d1d1 !important;
+  color: #555 !important;
+}
+
+/* Hover de días */
+.rdp-day:hover {
+  background-color: #eee;
+}
+
+/* ==== BOTONES GLOBALES ==== */
+button {
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+/* ==== TARJETAS Y BLOQUES ==== */
+.card {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* ==== INPUTS ==== */
+input, select, textarea {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #111;
+  outline: none;
+  box-shadow: 0 0 0 1px #111;
 }
