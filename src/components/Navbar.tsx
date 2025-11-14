@@ -2,50 +2,74 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
-    <header className="bg-white text-[var(--color-text)] border-b border-[var(--color-border)] shadow-sm">
-      <div className="container mx-auto flex justify-between items-center p-4">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Beat<span className="font-light">Makeup</span>
-        </h1>
+    <>
+      {/* NAVBAR */}
+      <nav className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold tracking-tight">
+            Barber App
+          </Link>
 
-        <button
-          className="md:hidden text-2xl focus:outline-none"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? "✕" : "☰"}
-        </button>
+          {/* BOTÓN HAMBURGUESA MOBILE */}
+          <button
+            onClick={() => setOpen(true)}
+            className="sm:hidden text-gray-800"
+          >
+            <Menu size={28} />
+          </button>
 
-        <nav className="hidden md:flex space-x-6 text-sm font-medium">
-          <Link href="/" className="hover:opacity-70 transition-opacity">
-            Inicio
-          </Link>
-          <Link href="/appointment" className="hover:opacity-70 transition-opacity">
-            Reservar Turno
-          </Link>
-          <Link href="/admin" className="hover:opacity-70 transition-opacity">
-            Panel Admin
-          </Link>
-        </nav>
-      </div>
+          {/* LINKS DESKTOP */}
+          <div className="hidden sm:flex gap-6 text-gray-700 font-medium">
+            <Link href="/">Inicio</Link>
+            <Link href="/admin">Panel Admin</Link>
+            <Link href="/login">Login</Link>
+          </div>
+        </div>
+      </nav>
 
-      {menuOpen && (
-        <nav className="md:hidden bg-white text-[var(--color-text)] border-t border-[var(--color-border)] shadow-md space-y-3 p-4 animate-fade-in">
-          <Link href="/" className="block hover:opacity-70" onClick={() => setMenuOpen(false)}>
-            Inicio
-          </Link>
-          <Link href="/appointment" className="block hover:opacity-70" onClick={() => setMenuOpen(false)}>
-            Reservar Turno
-          </Link>
-          <Link href="/admin" className="block hover:opacity-70" onClick={() => setMenuOpen(false)}>
-            Panel Admin
-          </Link>
-        </nav>
+      {/* BACKDROP OSCURO */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+        ></div>
       )}
-    </header>
+
+      {/* DRAWER DERECHO */}
+      <div
+        className={`
+          fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50
+          transform transition-transform duration-300
+          ${open ? "translate-x-0" : "translate-x-full"}
+        `}
+      >
+        {/* HEADER DRAWER */}
+        <div className="flex items-center justify-between px-4 py-4 border-b">
+          <h2 className="text-lg font-semibold">Menú</h2>
+          <button onClick={() => setOpen(false)}>
+            <X size={26} />
+          </button>
+        </div>
+
+        {/* LINKS */}
+        <div className="flex flex-col gap-4 p-4 text-gray-800 text-lg font-medium">
+          <Link href="/" onClick={() => setOpen(false)}>
+            Inicio
+          </Link>
+          <Link href="/admin" onClick={() => setOpen(false)}>
+            Panel Admin
+          </Link>
+          <Link href="/login" onClick={() => setOpen(false)}>
+            Login
+          </Link>
+        </div>
+      </div>
+    </>
   );
 }
