@@ -46,10 +46,13 @@ export default function AppointmentForm() {
       const combinedDate = new Date(`${date}T${time}:00`);
 
       await axios.post("/api/appointments", {
-        date: combinedDate,
+        name,
+        telefono,
+        date,
+        time,
         serviceId,
-        userId: userRes.data.id,
       });
+
 
       setSuccess(true);
       setName("");

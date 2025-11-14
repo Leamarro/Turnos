@@ -1,115 +1,174 @@
 "use client";
 
 import { useState } from "react";
-import CalendarModal from "./CalendarModal";
-import { format } from "date-fns";
+import { format, startOfWeek, addDays, startOfMonth, endOfMonth, eachDayOfInterval, startOfDay } from "date-fns";
 import { es } from "date-fns/locale";
 
-interface Appointment {
+type Appointment = {
   id: string;
   date: string;
-  service: { name: string };
   user: { name: string };
-}
+  service: { name: string };
+};
 
-interface Props {
+export default function CalendarGrid({
+  appointments,
+  view,
+}: {
   appointments: Appointment[];
-}
+  view: "week" | "month";
+}) {
+  const [currentDate, setCurrentDate] = useState(new Date());
 
-export function CalendarGrid({ appointments }: Props) {
-  const today = new Date();
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-  const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // -----------------------------
+  // Helpers
+  // -----------------------------
 
-  const handlePrevMonth = () => {
-    setCurrentMonth((prev) => (prev === 0 ? 11 : prev - 1));
-    if (currentMonth === 0) setCurrentYear((prev) => prev - 1);
+  const getWeekDays = () => {
+    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+    return Array.from({ length: 7 }, (_, i) => addDays(start, i));
   };
 
-  const handleNextMonth = () => {
-    setCurrentMonth((prev) => (prev === 11 ? 0 : prev + 1));
-    if (currentMonth === 11) setCurrentYear((prev) => prev + 1);
+  const getMonthDays = () => {
+    const start = startOfMonth(currentDate);
+    const end = endOfMonth(currentDate);
+    return eachDayOfInterval({ start, end });
   };
 
-  const handleDayClick = (date: Date) => {
-    setSelectedDate(date);
-    setIsModalOpen(true);
+  // -----------------------------
+// DÍAS A MOSTRAR (inicio = HOY)
+// -----------------------------
+const today = new Date();
+
+let days =
+  view === "week"
+    ? getWeekDays()
+    : getMonthDays().filter((d) => d >= startOfDay(today));
+
+
+
+  const getAppointmentsByDay = (day: Date) => {
+    return appointments.filter(
+      (a) => format(new Date(a.date), "yyyy-MM-dd") === format(day, "yyyy-MM-dd")
+    );
   };
 
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  // -----------------------------
+  // Navegación
+  // -----------------------------
 
-  const monthName =
-    format(new Date(currentYear, currentMonth), "MMMM", { locale: es })
-      .charAt(0)
-      .toUpperCase() +
-    format(new Date(currentYear, currentMonth), "MMMM", { locale: es }).slice(1);
+  const next = () => {
+    setCurrentDate((prev) =>
+      view === "week" ? addDays(prev, 7) : addDays(prev, 30)
+    );
+  };
 
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-md">
-      {/* Encabezado */}
-      <div className="flex justify-between items-center mb-4">
-        <button
-          onClick={handlePrevMonth}
-          className="text-[#111] text-xl font-light hover:opacity-60 transition"
-        >
-          ←
-        </button>
-        <h2 className="text-lg font-semibold">
-          {monthName} {currentYear}
-        </h2>
-        <button
-          onClick={handleNextMonth}
-          className="text-[#111] text-xl font-light hover:opacity-60 transition"
-        >
-          →
-        </button>
-      </div>
+  const prev = () => {
+    setCurrentDate((prev) =>
+      view === "week" ? addDays(prev, -7) : addDays(prev, -30)
+    );
+  };
 
-      {/* Grilla de días */}
-      <div className="grid grid-cols-7 gap-2 sm:gap-4 mt-4">
+  // -----------------------------
+  // RENDER MOBILE
+  // -----------------------------
+
+  if (typeof window !== "undefined" && window.innerWidth < 640) {
+    return (
+      <div className="space-y-4">
+        {/* Header Mobile */}
+        <div className="flex justify-between items-center">
+          <button onClick={prev} className="text-xl">◀</button>
+          <h2 className="font-semibold text-lg">
+            {format(currentDate, view === "week" ? "dd MMM yyyy" : "MMMM yyyy", {
+              locale: es,
+            })}
+          </h2>
+          <button onClick={next} className="text-xl">▶</button>
+        </div>
+
+        {/* Lista de días */}
         {days.map((day) => {
-          const date = new Date(currentYear, currentMonth, day);
-          const dateKey = date.toISOString().split("T")[0];
-          const isToday = date.toDateString() === today.toDateString();
-          const dayAppointments = appointments.filter((a) =>
-            a.date.startsWith(dateKey)
-          );
-
+          const dayAppointments = getAppointmentsByDay(day);
           return (
-            <div
-              key={day}
-              onClick={() => handleDayClick(date)}
-              className={`cursor-pointer rounded-xl border p-2 sm:p-4 text-center transition 
-                ${
-                  isToday
-                    ? "bg-[#f0efec] border-black"
-                    : "bg-[#fafafa] hover:bg-[#f5f3ef]"
-                }`}
-            >
-              <p className="font-semibold">{day}</p>
+            <div key={day.toString()} className="border rounded-xl p-4 bg-white shadow-sm">
+              <h3 className="font-semibold mb-1">
+                {format(day, "EEEE dd", { locale: es })}
+              </h3>
 
-              {dayAppointments.length > 0 && (
-                <p className="text-xs text-gray-600 mt-1">
-                  {dayAppointments.length} turno
-                  {dayAppointments.length > 1 ? "s" : ""}
-                </p>
+              {dayAppointments.length === 0 && (
+                <p className="text-gray-500 text-sm">Sin turnos</p>
               )}
+
+              {dayAppointments.map((a) => (
+                <div
+                  key={a.id}
+                  className="bg-gray-100 p-2 rounded-lg mt-2 border"
+                >
+                  <p className="font-medium">{a.user.name}</p>
+                  <p className="text-sm text-gray-600">{a.service.name}</p>
+                  <p className="text-xs text-gray-700">
+                    {format(new Date(a.date), "HH:mm")} hs
+                  </p>
+                </div>
+              ))}
             </div>
           );
         })}
       </div>
+    );
+  }
 
-      {/* Modal de turnos */}
-      {isModalOpen && selectedDate && (
-        <CalendarModal
-          date={selectedDate}
-          appointments={appointments}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
+  // -----------------------------
+  // RENDER DESKTOP – Calendario Grid
+  // -----------------------------
+
+  return (
+    <div>
+      {/* Header Desktop */}
+      <div className="flex justify-between mb-4">
+        <button onClick={prev} className="text-xl">◀</button>
+
+        <h2 className="text-xl font-semibold">
+          {format(currentDate, view === "week" ? "dd MMM yyyy" : "MMMM yyyy", {
+            locale: es,
+          })}
+        </h2>
+
+        <button onClick={next} className="text-xl">▶</button>
+      </div>
+
+      {/* Grid */}
+      <div
+        className={`grid ${
+          view === "week" ? "grid-cols-7" : "grid-cols-7"
+        } gap-2`}
+      >
+        {days.map((day) => {
+          const dayAppointments = getAppointmentsByDay(day);
+          return (
+            <div
+              key={day.toString()}
+              className="border rounded-lg p-2 bg-white min-h-[110px]"
+            >
+              <p className="text-sm font-semibold mb-1">
+                {format(day, "dd", { locale: es })}
+              </p>
+
+              {dayAppointments.map((a) => (
+                <div
+                  key={a.id}
+                  className="bg-gray-100 p-1 rounded mb-1 text-xs border"
+                >
+                  <p className="font-medium">{a.user.name}</p>
+                  <p>{a.service.name}</p>
+                  <p>{format(new Date(a.date), "HH:mm")} hs</p>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -1,30 +1,24 @@
 "use client";
 
-
-import { CalendarGrid } from "@/components/CalendarGrid";
+import CalendarGrid from "@/components/CalendarGrid";
 import { useEffect, useState } from "react";
 
 type Appointment = {
   id: string;
   date: string;
-  time: string;
-  service: {
-    name: string;
-  };
-  user: {
-    name: string;
-  };
+  service: { name: string };
+  user: { name: string };
 };
 
 export default function HomePage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [view, setView] = useState<"week" | "month">("month");
 
   useEffect(() => {
     const fetchAppointments = async () => {
       const res = await fetch("/api/appointments");
       const data = await res.json();
 
-      // 🔧 Convertimos la fecha a string ISO si viene como objeto Date
       const formatted = data.map((a: any) => ({
         ...a,
         date: new Date(a.date).toISOString(),
@@ -37,11 +31,30 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="py-6 sm:py-10 px-2 sm:px-4">
-      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8">
-        Agenda de Turnos
-      </h1>
-      <CalendarGrid appointments={appointments} />
+    <div className="py-6 px-3 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold text-center mb-4">Agenda de Turnos</h1>
+
+      {/* Selector */}
+      <div className="flex justify-center gap-3 mb-4">
+        <button
+          onClick={() => setView("month")}
+          className={`px-4 py-2 rounded-lg ${
+            view === "month" ? "bg-black text-white" : "bg-gray-200"
+          }`}
+        >
+          Mes
+        </button>
+        <button
+          onClick={() => setView("week")}
+          className={`px-4 py-2 rounded-lg ${
+            view === "week" ? "bg-black text-white" : "bg-gray-200"
+          }`}
+        >
+          Semana
+        </button>
+      </div>
+
+      <CalendarGrid appointments={appointments} view={view} />
     </div>
   );
 }
