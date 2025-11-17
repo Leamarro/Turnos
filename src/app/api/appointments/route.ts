@@ -17,10 +17,15 @@ export async function GET(req: Request) {
       return NextResponse.json(appointment);
     }
 
-    const appointments = await prisma.appointment.findMany({
-      include: { user: true, service: true },
-      orderBy: { date: "asc" },
-    });
+const appointment = await prisma.appointment.create({
+  data: {
+    date: fullDate,
+    serviceId,
+    userId: user.id,
+    status: status || "pendiente",
+  } as any, // parche para evitar error de TS por client viejo
+});
+
 
     return NextResponse.json(appointments);
   } catch (error) {
