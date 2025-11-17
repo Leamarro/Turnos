@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       );
     }
 
-    let user = await prisma.user.findUnique({ where: { telefono } });
+    let user = await prisma.user.findFirst({ where: { telefono } });
     if (!user) {
       user = await prisma.user.create({
         data: { name, telefono },
