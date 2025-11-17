@@ -17,15 +17,10 @@ export async function GET(req: Request) {
       return NextResponse.json(appointment);
     }
 
-const appointment = await prisma.appointment.create({
-  data: {
-    date: fullDate,
-    serviceId,
-    userId: user.id,
-    status: status || "pendiente",
-  } as any, // parche para evitar error de TS por client viejo
-});
-
+    const appointments = await prisma.appointment.findMany({
+      orderBy: { date: "asc" },
+      include: { user: true, service: true },
+    });
 
     return NextResponse.json(appointments);
   } catch (error) {
@@ -48,15 +43,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // Buscar usuario por teléfono SIN romper TS
+    // Buscar usuario por teléfono (parche para evitar error TS)
     let user = await prisma.user.findFirst({
-      where: { telefono } as any, // parche
+      where: { telefono } as any,
     });
 
-    // Si no existe, crearlo
+    // Crear si no existe
     if (!user) {
       user = await prisma.user.create({
-        data: { name, telefono } as any, // parche
+        data: { name, telefono } as any,
       });
     }
 
@@ -68,7 +63,7 @@ export async function POST(req: Request) {
         serviceId,
         userId: user.id,
         status: status || "pendiente",
-      },
+      } as any,
     });
 
     return NextResponse.json(appointment);
@@ -87,7 +82,7 @@ export async function DELETE(req: Request) {
     const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json({ error: "Falta el ID" }, { status: 400 });
+      return NextResponse.json({ error: "Falta ID" }, { status: 400 });
     }
 
     await prisma.appointment.delete({ where: { id } });
@@ -125,7 +120,7 @@ export async function PUT(req: Request) {
           update: {
             name,
             telefono,
-          } as any, // parche
+          } as any,
         },
       },
       include: { user: true, service: true },
