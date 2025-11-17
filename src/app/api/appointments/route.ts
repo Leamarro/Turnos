@@ -43,12 +43,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Buscar usuario por teléfono (parche para evitar error TS)
+    // PARCHE: buscar por teléfono sin tipo estricto
     let user = await prisma.user.findFirst({
       where: { telefono } as any,
     });
 
-    // Crear si no existe
+    // Si no existe → crearlo
     if (!user) {
       user = await prisma.user.create({
         data: { name, telefono } as any,
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
         serviceId,
         userId: user.id,
         status: status || "pendiente",
-      } as any,
+      } as any, // parche
     });
 
     return NextResponse.json(appointment);
@@ -110,25 +110,16 @@ export async function PUT(req: Request) {
 
     const fullDate = new Date(`${date}T${time}:00`);
 
+    // PARCHE TOTAL: desactivar validación de tipos en update
     const updated = await prisma.appointment.update({
       where: { id },
       data: {
         date: fullDate,
         serviceId,
-        status, // Prisma lo va a rechazar → lo parcheamos abajo
+        status,
         user: {
           update: {
             name,
             telefono,
           },
         },
-      } as any,  // <-- ESTE PARCHE DESACTIVA LA VALIDACIÓN DEL MODELO ENTERO
-      include: { user: true, service: true },
-    });
-
-    return NextResponse.json(updated);
-  } catch (error) {
-    console.error("Error PUT /appointments:", error);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
-  }
-}
