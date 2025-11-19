@@ -1,125 +1,135 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// =========================
-// GET
-// =========================
+// ==========================
+// GET → obtener 1 o todos
+// ==========================
 export async function GET(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
 
-    if (id) {
-      const appointment = await prisma.appointment.findUnique({
-        where: { id },
-        include: { user: true, service: true },
-      });
-      return NextResponse.json(appointment);
-    }
-
-    const appointments = await prisma.appointment.findMany({
-      orderBy: { date: "asc" },
+  if (id) {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id },
       include: { user: true, service: true },
     });
 
-    return NextResponse.json(appointments);
-  } catch (error) {
-    console.error("Error GET /appointments:", error);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+    return NextResponse.json(appointment);
   }
+
+  const appointments = await prisma.appointment.findMany({
+    include: { user: true, service: true },
+    orderBy: { date: "asc" },
+  });
+
+  return NextResponse.json(appointments);
 }
 
-// =========================
-// POST
-// =========================
+// ==========================
+// POST → crear turno
+// ==========================
 export async function POST(req: Request) {
   try {
-    const { name, telefono, date, time, serviceId, status } = await req.json();
+    const { name, telefono, serviceId, date, time } = await req.json();
 
-    if (!name || !telefono || !date || !time || !serviceId) {
-      return NextResponse.json(
-        { error: "Faltan datos obligatorios" },
-        { status: 400 }
-      );
-    }
+    const datetime = new Date(`${date}T${time}:00`);
 
-    // PARCHE: buscar por teléfono sin tipo estricto
-    let user = await prisma.user.findFirst({
-      where: { telefono } as any,
+    // 1️⃣ Buscar usuario por telefono
+    let user = await prisma.user.findUnique({
+      where: { telefono },
     });
 
-    // Si no existe → crearlo
+    // 2️⃣ Si no existe → crearlo
     if (!user) {
       user = await prisma.user.create({
-        data: { name, telefono } as any,
+        data: {
+          name,
+          telefono,
+        },
       });
     }
 
-    const fullDate = new Date(`${date}T${time}:00`);
-
+    // 3️⃣ Crear turno conectando user existente o recién creado
     const appointment = await prisma.appointment.create({
       data: {
-        date: fullDate,
-        serviceId,
-        userId: user.id,
-        status: status || "pendiente",
-      } as any, // parche
+        date: datetime,
+        status: "pendiente",
+        service: { connect: { id: serviceId } },
+        user: { connect: { id: user.id } },
+      },
     });
 
     return NextResponse.json(appointment);
-  } catch (error) {
-    console.error("Error POST /appointments:", error);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+  } catch (err) {
+    console.error("❌ ERROR POST /appointments:", err);
+    return NextResponse.json(
+      { error: "Error al crear el turno" },
+      { status: 500 }
+    );
   }
 }
 
-// =========================
-// DELETE
-// =========================
-export async function DELETE(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
 
-    if (!id) {
-      return NextResponse.json({ error: "Falta ID" }, { status: 400 });
-    }
-
-    await prisma.appointment.delete({ where: { id } });
-
-    return NextResponse.json({ message: "Turno eliminado" });
-  } catch (error) {
-    console.error("Error DELETE /appointments:", error);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
-  }
-}
-
-// =========================
-// PUT
-// =========================
+// ==========================
+// PUT → actualizar turno
+// ==========================
 export async function PUT(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
-    if (!id) {
-      return NextResponse.json({ error: "Falta ID" }, { status: 400 });
-    }
+    const { name, telefono, serviceId, date, time, status } = await req.json();
 
-    const { name, telefono, date, time, serviceId, status } = await req.json();
+    const datetime = new Date(`${date}T${time}:00`);
 
-    const fullDate = new Date(`${date}T${time}:00`);
-
-    // PARCHE TOTAL: desactivar validación de tipos en update
-    const updated = await prisma.appointment.update({
+    const ap = await prisma.appointment.update({
       where: { id },
       data: {
-        date: fullDate,
-        serviceId,
+        date: datetime,
         status,
+        service: {
+          connect: { id: serviceId }, // ← STRING ✔
+        },
         user: {
           update: {
-            name,
-            telefono,
+            data: {
+              name,
+              telefono,
+            },
           },
         },
+      },
+      include: { user: true, service: true },
+    });
+
+    return NextResponse.json(ap);
+  } catch (err) {
+    console.error("❌ ERROR PUT /appointments:", err);
+    return NextResponse.json(
+      { error: "Error al actualizar el turno" },
+      { status: 500 }
+    );
+  }
+}
+
+// ==========================
+// DELETE → eliminar turno
+// ==========================
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    await prisma.appointment.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("❌ ERROR DELETE /appointments:", err);
+    return NextResponse.json(
+      { error: "Error al eliminar el turno" },
+      { status: 500 }
+    );
+  }
+}
