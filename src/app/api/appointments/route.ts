@@ -18,20 +18,13 @@ export async function GET() {
     console.error("ERROR GET APPOINTMENTS:", error);
     return NextResponse.json({ error: "Error al cargar turnos" }, { status: 500 });
   }
-
-  const appointments = await prisma.appointment.findMany({
-    include: { user: true, service: true },
-    orderBy: { date: "asc" },
-  });
-
-  return NextResponse.json(appointments);
 }
 
 export async function POST(request: Request) {
   try {
     const { date, serviceId, name, telefono } = await request.json();
 
-    if (!date || !serviceId || !name) {
+    if (!date || !serviceId || !name || !telefono) {
       return NextResponse.json(
         { error: "Faltan datos obligatorios" },
         { status: 400 }
