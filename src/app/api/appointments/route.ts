@@ -16,22 +16,18 @@ export async function GET() {
     return NextResponse.json(appointments);
   } catch (error) {
     console.error("ERROR GET APPOINTMENTS:", error);
-    return NextResponse.json({ error: "Error al cargar turnos" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error al cargar turnos" },
+      { status: 500 }
+    );
   }
-
-  const appointments = await prisma.appointment.findMany({
-    include: { user: true, service: true },
-    orderBy: { date: "asc" },
-  });
-
-  return NextResponse.json(appointments);
 }
 
 export async function POST(request: Request) {
   try {
     const { date, serviceId, name, telefono } = await request.json();
 
-    if (!date || !serviceId || !name) {
+    if (!date || !serviceId || !name || !telefono) {
       return NextResponse.json(
         { error: "Faltan datos obligatorios" },
         { status: 400 }
@@ -45,9 +41,12 @@ export async function POST(request: Request) {
           connect: { id: serviceId },
         },
         user: {
-          create: {
-            name,
-            telefono,
+          connectOrCreate: {
+            where: { telefono },
+            create: {
+              name,
+              telefono,
+            },
           },
         },
       },
