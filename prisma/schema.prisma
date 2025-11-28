@@ -18,15 +18,17 @@ model User {
 }
 
 model Appointment {
-  id        String   @id @default(cuid())
-  date      DateTime
-  serviceId String
-  userId    String?
-  service   Service  @relation(fields: [serviceId], references: [id])
-  user      User?    @relation(fields: [userId], references: [id])
-  status    String   @default("pendiente")
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  date         DateTime
+  serviceId    String
+  userId       String?
+  service      Service  @relation(fields: [serviceId], references: [id])
+  user         User?    @relation(fields: [userId], references: [id])
+  status       String   @default("pendiente")
+  servicePrice Float @default(0)
+  createdAt    DateTime @default(now())
 }
+
 
 model Service {
   id           String        @id @default(cuid())

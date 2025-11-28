@@ -20,7 +20,7 @@ export default function PreciosPage() {
         perfilado: data.find((s: any) => s.name === "Perfilado")?.price ?? 0,
         maquillaje: data.find((s: any) => s.name === "Maquillaje")?.price ?? 0,
         prueba:
-          data.find((s: any) => s.name === "Prueba Maquillaje")?.price ?? 0,
+          data.find((s: any) => s.name === "Prueba maquillaje")?.price ?? 0,
       });
     }
 

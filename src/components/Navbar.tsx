@@ -42,6 +42,7 @@ export default function Navbar() {
             <Link href="/">Inicio</Link>
             <Link href="/appointment">Reservar Turno</Link>
             <Link href="/admin">Panel Admin</Link>
+            <Link href="/dashboard">Dashboard</Link> 
             <Link href="/precios">Precios</Link>
             <Link href="/login">Login</Link>
           </div>
@@ -82,11 +83,12 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* LINKS */}
+        {/* LINKS MOBILE */}
         <div className="flex flex-col gap-4 p-4 text-gray-800 text-lg font-medium">
           <Link href="/" onClick={() => setOpen(false)}>Inicio</Link>
           <Link href="/appointment" onClick={() => setOpen(false)}>Reservar Turno</Link>
           <Link href="/admin" onClick={() => setOpen(false)}>Panel Admin</Link>
+          <Link href="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link> {/* ← agregado */}
           <Link href="/precios" onClick={() => setOpen(false)}>Precios</Link>
         </div>
       </div>

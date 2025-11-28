@@ -19,13 +19,13 @@ export default function AdminPanel() {
   }, []);
 
   async function updateStatus(id: string, status: string) {
-    await axios.patch("/api/appointments", { id, status });
+    await axios.patch(`/api/appointments/${id}`, { status });
     fetchAppointments(filterDate);
   }
 
   async function deleteAppointment(id: string) {
     if (confirm("¿Eliminar este turno?")) {
-      await axios.delete("/api/appointments", { data: { id } });
+      await axios.delete(`/api/appointments/${id}`);
       fetchAppointments(filterDate);
     }
   }

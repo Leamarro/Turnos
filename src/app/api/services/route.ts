@@ -1,16 +1,20 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function GET() {
-  try {
-    const services = await prisma.service.findMany();
-    return NextResponse.json(services);
-  } catch (error) {
-    console.error("Error al obtener servicios:", error);
-    return NextResponse.json({ error: "Error al obtener servicios" }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+  const services = await prisma.service.findMany();
+  return NextResponse.json(services);
+}
+
+export async function POST(req: Request) {
+  const { name, price } = await req.json();
+  if (!name || !price) {
+    return NextResponse.json({ error: "Datos faltantes" }, { status: 400 });
   }
+
+  const service = await prisma.service.create({
+    data: { name, price: Number(price) },
+  });
+
+  return NextResponse.json(service);
 }
