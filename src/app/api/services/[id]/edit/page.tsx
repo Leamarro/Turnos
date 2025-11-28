@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function EditServicePage({ params }) {
+interface EditServicePageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function EditServicePage({ params }: EditServicePageProps) {
   const { id } = params;
   const router = useRouter();
 
@@ -14,7 +20,7 @@ export default function EditServicePage({ params }) {
     fetch("/api/services")
       .then((r) => r.json())
       .then((list) => {
-        const s = list.find((x) => x.id === id);
+        const s = list.find((x: any) => x.id === id);
         if (s) {
           setName(s.name);
           setPrice(s.price);
@@ -22,11 +28,11 @@ export default function EditServicePage({ params }) {
       });
   }, [id]);
 
-  const submit = async (e) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     await fetch(`/api/services/${id}`, {
       method: "PUT",
-      body: JSON.stringify({ name, price }),
+      body: JSON.stringify({ name, price: Number(price) }),
     });
     router.push("/services");
   };

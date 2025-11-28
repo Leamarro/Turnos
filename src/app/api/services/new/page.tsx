@@ -8,12 +8,17 @@ export default function NewServicePage() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
 
-  const submit = async (e) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     await fetch("/api/services", {
       method: "POST",
-      body: JSON.stringify({ name, price }),
+      body: JSON.stringify({
+        name,
+        price: Number(price),
+      }),
     });
+
     router.push("/services");
   };
 

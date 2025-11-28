@@ -10,7 +10,7 @@ export async function GET() {
       },
     });
 
-    const monthly = {};
+    const monthly: Record<string, number> = {};
 
     appointments.forEach((a) => {
       const month = new Date(a.date).toISOString().slice(0, 7); // YYYY-MM
@@ -26,6 +26,9 @@ export async function GET() {
     return NextResponse.json(result);
   } catch (error) {
     console.error("ERROR STATS:", error);
-    return NextResponse.json({ error: "Error al cargar estadísticas" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error al cargar estadísticas" },
+      { status: 500 }
+    );
   }
 }
