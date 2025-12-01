@@ -9,9 +9,16 @@ export async function PATCH(req: Request, { params }: any) {
     const { id } = params;
     const { status } = await req.json();
 
+    if (!status) {
+      return NextResponse.json(
+        { error: "Falta el estado" },
+        { status: 400 }
+      );
+    }
+
     const updated = await prisma.appointment.update({
       where: { id },
-      data: { status },
+      data: { state: status }, // 👈 CORRECTO — tu modelo usa state
     });
 
     return NextResponse.json(updated);
