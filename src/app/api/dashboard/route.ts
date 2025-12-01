@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+// Tipo para garantizar que TS entienda service como null o con price
+type AppointmentWithService = {
+  date: Date;
+  service: { price: number } | null;
+};
+
 export async function GET() {
   try {
     // ================================
@@ -14,35 +20,41 @@ export async function GET() {
       },
     });
 
-    const revenueByMonth = revenueByMonthRaw.reduce((acc, appt) => {
-      const monthKey = `${appt.date.getFullYear()}-${appt.date.getMonth() + 1}`;
+    const revenueByMonth = (revenueByMonthRaw as AppointmentWithService[]).reduce(
+      (acc, appt) => {
+        const monthKey = `${appt.date.getFullYear()}-${appt.date.getMonth() + 1}`;
 
-      if (!acc[monthKey]) {
-        acc[monthKey] = { total: 0, count: 0 };
-      }
+        if (!acc[monthKey]) {
+          acc[monthKey] = { total: 0, count: 0 };
+        }
 
-      acc[monthKey].total += appt.service?.price ?? 0;
-      acc[monthKey].count += 1;
+        acc[monthKey].total += appt.service?.price ?? 0;
+        acc[monthKey].count += 1;
 
-      return acc;
-    }, {} as Record<string, { total: number; count: number }>);
+        return acc;
+      },
+      {} as Record<string, { total: number; count: number }>
+    );
 
 
     // ================================
     // FACTURACIÓN POR DÍA
     // ================================
-    const revenueByDay = revenueByMonthRaw.reduce((acc, appt) => {
-      const dayKey = appt.date.toISOString().split("T")[0];
+    const revenueByDay = (revenueByMonthRaw as AppointmentWithService[]).reduce(
+      (acc, appt) => {
+        const dayKey = appt.date.toISOString().split("T")[0];
 
-      if (!acc[dayKey]) {
-        acc[dayKey] = { total: 0, count: 0 };
-      }
+        if (!acc[dayKey]) {
+          acc[dayKey] = { total: 0, count: 0 };
+        }
 
-      acc[dayKey].total += appt.service?.price ?? 0;
-      acc[dayKey].count += 1;
+        acc[dayKey].total += appt.service?.price ?? 0;
+        acc[dayKey].count += 1;
 
-      return acc;
-    }, {} as Record<string, { total: number; count: number }>);
+        return acc;
+      },
+      {} as Record<string, { total: number; count: number }>
+    );
 
 
     // ================================
