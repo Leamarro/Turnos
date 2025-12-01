@@ -131,7 +131,8 @@ export default function AppointmentForm() {
           >
             <option value="">Seleccionar servicio</option>
 
-            {services.map((service) => (
+            {Array.isArray(services) &&
+  services.map((service) => (
               <option key={service.id} value={service.id}>
                 {service.name}
               </option>
