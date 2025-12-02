@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 type Service = { id: string; name: string };
 type Appointment = {
   id: string;
-  date: string;
-  status: string;
-  user?: { id: string; name: string; telefono: string };
-  service?: { id: string; name: string };
+  date?: string;
+  status?: string;
+  user?: { id: string; name?: string; telefono?: string };
+  service?: { id: string; name?: string };
 };
 
 export default function EditAppointmentPage({ params }: { params: { id: string } }) {
@@ -25,33 +25,33 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
   const [serviceId, setServiceId] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("pendiente");
 
   useEffect(() => {
     async function loadData() {
       try {
-        // Obtener la cita
         const ap = await axios.get(`/api/appointments?id=${id}`);
         const sv = await axios.get("/api/services");
 
-        const a = ap.data as Appointment;
+        const a: Appointment = ap.data;
         setAppointment(a);
 
-        // Manejo seguro en caso de que user o service no existan
+        // Manejo seguro de campos opcionales
         setName(a.user?.name || "");
         setTelefono(a.user?.telefono || "");
         setServiceId(a.service?.id || "");
-
-        // separar fecha y hora
-        if (a.date) {
-          const d = new Date(a.date);
-          setDate(d.toISOString().slice(0, 10));
-          setTime(d.toTimeString().slice(0, 5));
-        }
-
         setStatus(a.status || "pendiente");
 
-        setServices(sv.data);
+        // Manejo seguro de fecha
+        if (a.date) {
+          const d = new Date(a.date);
+          if (!isNaN(d.getTime())) {
+            setDate(d.toISOString().slice(0, 10));
+            setTime(d.toTimeString().slice(0, 5));
+          }
+        }
+
+        setServices(sv.data || []);
       } catch (err) {
         console.error(err);
         alert("Error al cargar la cita o los servicios");
@@ -89,7 +89,7 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
     if (!confirm("¿Eliminar el turno definitivamente?")) return;
 
     try {
-      await axios.delete("/api/appointments", { data: { id } });
+      await axios.delete(`/api/appointments?id=${id}`);
       router.push("/admin");
     } catch (err) {
       console.error(err);
@@ -133,7 +133,7 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
         >
           {services.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.name}
+              {s.name || "Sin nombre"}
             </option>
           ))}
         </select>
