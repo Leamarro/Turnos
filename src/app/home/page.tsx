@@ -19,6 +19,12 @@ export default function HomePage() {
       const res = await fetch("/api/appointments");
       const data = await res.json();
 
+      if (!Array.isArray(data)) {
+        console.error("API returned invalid data", data);
+        setAppointments([]);
+        return;
+      }
+
       const formatted = data.map((a: any) => ({
         ...a,
         date: new Date(a.date).toISOString(),
@@ -34,7 +40,6 @@ export default function HomePage() {
     <div className="py-6 px-3 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-center mb-4">Agenda de Turnos</h1>
 
-      {/* Selector */}
       <div className="flex justify-center gap-3 mb-4">
         <button
           onClick={() => setView("month")}
@@ -44,6 +49,7 @@ export default function HomePage() {
         >
           Mes
         </button>
+
         <button
           onClick={() => setView("week")}
           className={`px-4 py-2 rounded-lg ${
