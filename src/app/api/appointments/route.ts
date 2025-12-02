@@ -10,8 +10,11 @@ export async function GET(request: Request) {
     const id = searchParams.get("id");
     const date = searchParams.get("date");
 
-    if (id) {
-      // Obtener turno por ID
+    // 🔥 FIX: validar ID correctamente
+    const isValidId = id && id !== "undefined" && id.trim() !== "";
+
+    // --- Obtener turno por ID ---
+    if (isValidId) {
       const appointment = await prisma.appointment.findUnique({
         where: { id },
         include: { user: true, service: true },
@@ -24,16 +27,16 @@ export async function GET(request: Request) {
         );
       }
 
-      return NextResponse.json(appointment, { status: 200 });
+      return NextResponse.json(appointment);
     }
 
-    // Obtener todos los turnos (opcional por fecha)
+    // --- Obtener todos los turnos (con filtro opcional por fecha) ---
     const appointments = await prisma.appointment.findMany({
       where: date
         ? {
             date: {
-              gte: new Date(date + "T00:00:00"),
-              lte: new Date(date + "T23:59:59"),
+              gte: new Date(`${date}T00:00:00`),
+              lte: new Date(`${date}T23:59:59`),
             },
           }
         : {},
@@ -41,7 +44,7 @@ export async function GET(request: Request) {
       orderBy: { date: "asc" },
     });
 
-    return NextResponse.json(appointments, { status: 200 });
+    return NextResponse.json(appointments);
   } catch (error) {
     console.error("❌ ERROR GET APPOINTMENTS:", error);
     return NextResponse.json(
@@ -59,8 +62,14 @@ export async function PUT(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
-    if (!id) {
-      return NextResponse.json({ error: "ID requerido" }, { status: 400 });
+    const isValidId =
+      id && id !== "undefined" && id.trim() !== "";
+
+    if (!isValidId) {
+      return NextResponse.json(
+        { error: "ID requerido" },
+        { status: 400 }
+      );
     }
 
     const body = await request.json();
@@ -71,10 +80,13 @@ export async function PUT(request: Request) {
     });
 
     if (!existingAppointment) {
-      return NextResponse.json({ error: "Turno no encontrado" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Turno no encontrado" },
+        { status: 404 }
+      );
     }
 
-    // Actualizar usuario
+    // --- Actualizar usuario ---
     if (existingAppointment.userId) {
       await prisma.user.update({
         where: { id: existingAppointment.userId },
@@ -82,10 +94,10 @@ export async function PUT(request: Request) {
       });
     }
 
-    // Combinar fecha y hora
+    // --- Combinar fecha y hora ---
     const dateTime = new Date(`${date}T${time}`);
 
-    // Actualizar cita
+    // --- Actualizar cita ---
     const updatedAppointment = await prisma.appointment.update({
       where: { id },
       data: {
@@ -96,10 +108,13 @@ export async function PUT(request: Request) {
       include: { user: true, service: true },
     });
 
-    return NextResponse.json(updatedAppointment, { status: 200 });
+    return NextResponse.json(updatedAppointment);
   } catch (error) {
     console.error("❌ ERROR UPDATE APPOINTMENT:", error);
-    return NextResponse.json({ error: "No se pudo actualizar el turno" }, { status: 500 });
+    return NextResponse.json(
+      { error: "No se pudo actualizar el turno" },
+      { status: 500 }
+    );
   }
 }
 
@@ -111,15 +126,28 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
-    if (!id) {
-      return NextResponse.json({ error: "ID requerido" }, { status: 400 });
+    const isValidId =
+      id && id !== "undefined" && id.trim() !== "";
+
+    if (!isValidId) {
+      return NextResponse.json(
+        { error: "ID requerido" },
+        { status: 400 }
+      );
     }
 
-    await prisma.appointment.delete({ where: { id } });
+    await prisma.appointment.delete({
+      where: { id },
+    });
 
-    return NextResponse.json({ message: "Turno eliminado correctamente" }, { status: 200 });
+    return NextResponse.json({
+      message: "Turno eliminado correctamente",
+    });
   } catch (error) {
     console.error("❌ ERROR DELETE APPOINTMENT:", error);
-    return NextResponse.json({ error: "No se pudo eliminar el turno" }, { status: 500 });
+    return NextResponse.json(
+      { error: "No se pudo eliminar el turno" },
+      { status: 500 }
+    );
   }
 }
