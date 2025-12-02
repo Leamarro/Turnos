@@ -19,6 +19,12 @@ export default function HomePage() {
       const res = await fetch("/api/appointments");
       const data = await res.json();
 
+      if (!Array.isArray(data)) {
+        console.error("API returned invalid data", data);
+        setAppointments([]);
+        return;
+      }
+
       const formatted = data.map((a: any) => ({
         ...a,
         date: new Date(a.date).toISOString(),
