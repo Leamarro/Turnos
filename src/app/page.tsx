@@ -2,6 +2,7 @@
 
 import CalendarGrid from "@/components/CalendarGrid";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Appointment = {
   id: string;
@@ -13,6 +14,7 @@ type Appointment = {
 export default function HomePage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [view, setView] = useState<"week" | "month">("month");
+  const router = useRouter(); // ✅ router para navegar a editar
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -38,7 +40,9 @@ export default function HomePage() {
 
   return (
     <div className="py-6 px-3 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-center mb-4">Agenda de Turnos</h1>
+      <h1 className="text-2xl font-bold text-center mb-4">
+        Agenda de Turnos
+      </h1>
 
       <div className="flex justify-center gap-3 mb-4">
         <button
@@ -60,7 +64,12 @@ export default function HomePage() {
         </button>
       </div>
 
-      <CalendarGrid appointments={appointments} view={view} />
+      {/* ✅ CLICK EN TURNO = IR A EDITAR */}
+      <CalendarGrid
+        appointments={appointments}
+        view={view}
+        onSelectAppointment={(id) => router.push(`/admin/edit/${id}`)}
+      />
     </div>
   );
 }

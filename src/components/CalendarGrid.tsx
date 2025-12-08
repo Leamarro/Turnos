@@ -22,9 +22,11 @@ type Appointment = {
 export default function CalendarGrid({
   appointments,
   view,
+  onSelectAppointment,
 }: {
   appointments: Appointment[];
   view: "week" | "month";
+  onSelectAppointment?: (id: string) => void;
 }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isClient, setIsClient] = useState(false);
@@ -119,7 +121,8 @@ export default function CalendarGrid({
               {items.map((a) => (
                 <div
                   key={a.id}
-                  className="bg-gray-100 p-2 rounded-lg mt-2 border"
+                  onClick={() => onSelectAppointment?.(a.id)}
+                  className="bg-gray-100 p-2 rounded-lg mt-2 border cursor-pointer hover:bg-gray-200 transition"
                 >
                   <p className="font-medium">{a.user.name}</p>
                   <p className="text-sm text-gray-600">{a.service.name}</p>
@@ -167,7 +170,8 @@ export default function CalendarGrid({
               {items.map((a) => (
                 <div
                   key={a.id}
-                  className="bg-gray-100 p-1 rounded mb-1 text-xs border"
+                  onClick={() => onSelectAppointment?.(a.id)}
+                  className="bg-gray-100 p-1 rounded mb-1 text-xs border cursor-pointer hover:bg-gray-200 transition"
                 >
                   <p className="font-medium">{a.user.name}</p>
                   <p>{a.service.name}</p>
