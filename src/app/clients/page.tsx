@@ -1,0 +1,64 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+type Client = {
+  id: string;
+  name: string;
+  telefono: string;
+  totalAppointments: number;
+  lastAppointment: string | null;
+};
+
+export default function ClientsPage() {
+  const [clients, setClients] = useState<Client[]>([]);
+
+  useEffect(() => {
+    fetch("/api/clients")
+      .then((res) => res.json())
+      .then(setClients);
+  }, []);
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-6">
+      <h1 className="text-2xl font-bold mb-4">Clientes</h1>
+
+      <div className="bg-white rounded-xl shadow overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-3 text-left">Nombre</th>
+              <th className="p-3 text-left">Teléfono</th>
+              <th className="p-3 text-center">Turnos</th>
+              <th className="p-3 text-left">Último turno</th>
+            </tr>
+          </thead>
+          <tbody>
+            {clients.map((c) => (
+              <tr key={c.id} className="border-t hover:bg-gray-50">
+                <td className="p-3">
+                  <Link
+                    href={`/clients/${c.id}`}
+                    className="font-medium underline"
+                  >
+                    {c.name}
+                  </Link>
+                </td>
+                <td className="p-3">{c.telefono}</td>
+                <td className="p-3 text-center">
+                  {c.totalAppointments}
+                </td>
+                <td className="p-3">
+                  {c.lastAppointment
+                    ? new Date(c.lastAppointment).toLocaleDateString()
+                    : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
