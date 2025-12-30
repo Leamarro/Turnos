@@ -15,7 +15,10 @@ import { es } from "date-fns/locale";
 type Appointment = {
   id: string;
   date: string;
-  user: { name: string };
+  user: {
+    name: string;
+    lastName: string;
+  };
   service: { name: string };
 };
 
@@ -31,7 +34,7 @@ export default function CalendarGrid({
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isClient, setIsClient] = useState(false);
 
-  // Necesario para evitar errores SSR vs client
+  // Evitar errores SSR
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -87,7 +90,7 @@ export default function CalendarGrid({
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
-  // ---------------- MOBILE ----------------
+  // ================= MOBILE =================
   if (isMobile) {
     return (
       <div className="space-y-4 mt-4">
@@ -124,7 +127,9 @@ export default function CalendarGrid({
                   onClick={() => onSelectAppointment?.(a.id)}
                   className="bg-gray-100 p-2 rounded-lg mt-2 border cursor-pointer hover:bg-gray-200 transition"
                 >
-                  <p className="font-medium">{a.user.name}</p>
+                  <p className="font-medium">
+                    {a.user.name} {a.user.lastName}
+                  </p>
                   <p className="text-sm text-gray-600">{a.service.name}</p>
                   <p className="text-xs text-gray-700">
                     {format(new Date(a.date), "HH:mm")} hs
@@ -138,7 +143,7 @@ export default function CalendarGrid({
     );
   }
 
-  // ---------------- DESKTOP ----------------
+  // ================= DESKTOP =================
   return (
     <div>
       <div className="flex justify-between mb-4">
@@ -173,7 +178,9 @@ export default function CalendarGrid({
                   onClick={() => onSelectAppointment?.(a.id)}
                   className="bg-gray-100 p-1 rounded mb-1 text-xs border cursor-pointer hover:bg-gray-200 transition"
                 >
-                  <p className="font-medium">{a.user.name}</p>
+                  <p className="font-medium">
+                    {a.user.name} {a.user.lastName}
+                  </p>
                   <p>{a.service.name}</p>
                   <p>{format(new Date(a.date), "HH:mm")} hs</p>
                 </div>

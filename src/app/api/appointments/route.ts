@@ -60,9 +60,14 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { date, serviceId, name, telefono } = body;
 
-    if (!date || !serviceId || !name || !telefono) {
+    const {
+      date,
+      user: { name, lastName, phone },
+      service: { id: serviceId },
+    } = body;
+
+    if (!date || !serviceId || !name || !lastName || !phone) {
       return NextResponse.json(
         { error: "Faltan datos obligatorios" },
         { status: 400 }
@@ -80,14 +85,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // ✅ Crear o actualizar usuario
+    // ✅ Crear o actualizar usuario (por teléfono)
     const user = await prisma.user.upsert({
-      where: { telefono },
-      update: { name },
-      create: { name, telefono },
+      where: { telefono: phone },
+      update: {
+        name,
+        lastName,
+      },
+      create: {
+        name,
+        lastName,
+        telefono: phone,
+      },
     });
 
-    // ✅ Crear turno
     const appointment = await prisma.appointment.create({
       data: {
         date: new Date(date),
@@ -111,6 +122,7 @@ export async function POST(request: Request) {
   }
 }
 
+
 // =========================
 // PUT — actualizar turno
 // =========================
@@ -129,7 +141,8 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { name, telefono, serviceId, date, time, status } = body;
+    const { name, lastName, telefono, serviceId, date, time, status } = body;
+
 
     const existingAppointment = await prisma.appointment.findUnique({
       where: { id },
@@ -142,13 +155,25 @@ export async function PUT(request: Request) {
       );
     }
 
+    if (!existingAppointment.userId) {
+  return NextResponse.json(
+    { error: "El turno no tiene usuario asociado" },
+    { status: 400 }
+  );
+}
+
+
     // ✅ Actualizar usuario
-    if (existingAppointment.userId) {
-      await prisma.user.update({
-        where: { id: existingAppointment.userId },
-        data: { name, telefono },
-      });
-    }
+await prisma.user.update({
+  where: { id: existingAppointment.userId },
+  data: {
+    name,
+    lastName,
+    telefono,
+  },
+});
+
+
 
     // ✅ Combinar fecha y hora
     const dateTime = new Date(`${date}T${time}`);

@@ -12,10 +12,12 @@ datasource db {
 model User {
   id           String        @id @default(cuid())
   name         String
+  lastName     String?       // 👈 OPCIONAL
   telefono     String        @unique
   appointments Appointment[]
   createdAt    DateTime      @default(now())
 }
+
 
 model Appointment {
   id        String   @id @default(cuid())

@@ -8,7 +8,7 @@ type Appointment = {
   id: string;
   date: string;
   service: { name: string };
-  user: { name: string };
+  user: { name: string; lastName: string };
 };
 
 export default function HomePage() {

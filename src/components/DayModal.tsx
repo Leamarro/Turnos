@@ -1,21 +1,29 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import axios from "axios";
+import TimePicker from "react-time-picker";
+
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
 
 export default function AppointmentForm() {
   const [services, setServices] = useState<any[]>([]);
   const [serviceId, setServiceId] = useState("");
+
   const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
+
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState<string | null>(null);
+
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     async function fetchServices() {
       try {
         const res = await axios.get("/api/services");
-        console.log("Servicios obtenidos:", res.data);
         setServices(res.data);
       } catch (error) {
         console.error("Error cargando servicios:", error);
@@ -27,24 +35,31 @@ export default function AppointmentForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!serviceId || !name || !phone || !date || !time) {
+    if (!serviceId || !name || !lastName || !phone || !date || !time) {
       setMessage("Por favor completá todos los campos.");
       return;
     }
 
     try {
       const dateTime = new Date(`${date}T${time}`);
+
       await axios.post("/api/appointments", {
-        user: { name, phone },
+        user: {
+          name,
+          lastName,
+          phone,
+        },
         service: { id: serviceId },
         date: dateTime,
       });
 
       setMessage("✅ Turno reservado con éxito!");
+
       setName("");
+      setLastName("");
       setPhone("");
       setDate("");
-      setTime("");
+      setTime(null);
       setServiceId("");
     } catch (error) {
       console.error(error);
@@ -68,8 +83,20 @@ export default function AppointmentForm() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Tu nombre completo"
-            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4b996] bg-white transition"
+            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#d4b996]"
+          />
+        </div>
+
+        {/* Apellido */}
+        <div>
+          <label className="block text-sm font-medium mb-1 text-[#111]">
+            Apellido
+          </label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#d4b996]"
           />
         </div>
 
@@ -82,8 +109,7 @@ export default function AppointmentForm() {
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder="Ej: 2914567890"
-            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4b996] bg-white transition"
+            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#d4b996]"
           />
         </div>
 
@@ -92,23 +118,18 @@ export default function AppointmentForm() {
           <label className="block text-sm font-medium mb-1 text-[#111]">
             Servicio
           </label>
-          <div className="relative">
-            <select
-              value={serviceId}
-              onChange={(e) => setServiceId(e.target.value)}
-              className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4b996] bg-white pr-8 appearance-none"
-            >
-              <option value="">Seleccioná un servicio</option>
-              {services.map((service) => (
-                <option key={service.id} value={service.id}>
-                  {service.name}
-                </option>
-              ))}
-            </select>
-            <span className="absolute right-3 top-3.5 text-gray-400 pointer-events-none">
-              ▾
-            </span>
-          </div>
+          <select
+            value={serviceId}
+            onChange={(e) => setServiceId(e.target.value)}
+            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#d4b996]"
+          >
+            <option value="">Seleccioná un servicio</option>
+            {services.map((service) => (
+              <option key={service.id} value={service.id}>
+                {service.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Fecha */}
@@ -120,24 +141,28 @@ export default function AppointmentForm() {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4b996] bg-white transition"
+            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#d4b996]"
           />
         </div>
 
-        {/* Hora */}
+        {/* Hora — reloj moderno */}
         <div>
           <label className="block text-sm font-medium mb-1 text-[#111]">
             Hora
           </label>
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4b996] bg-white transition"
-          />
+
+          <div className="custom-timepicker">
+            <TimePicker
+              onChange={setTime}
+              value={time}
+              disableClock
+              format="HH:mm"
+              clearIcon={null}
+              className="w-full"
+            />
+          </div>
         </div>
 
-        {/* Botón */}
         <button
           type="submit"
           className="w-full bg-[#d4b996] hover:bg-[#c3a87e] text-white font-medium py-2.5 rounded-xl transition"

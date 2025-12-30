@@ -79,7 +79,7 @@ export default function AdminPanel() {
           >
             <div className="flex justify-between items-start">
               <div>
-                <p className="font-semibold text-lg">{a.user?.name}</p>
+                <p className="font-semibold text-lg">{a.user?.name} {a.user?.lastName}</p>
                 <p className="text-sm text-gray-600">{a.user?.telefono}</p>
               </div>
 
@@ -156,7 +156,7 @@ export default function AdminPanel() {
           <tbody>
             {appointments.map((a) => (
               <tr key={a.id} className="border-b hover:bg-gray-50 transition">
-                <td className="p-3">{a.user?.name}</td>
+                <td className="p-3">{a.user?.name} {a.user?.lastName}</td>
                 <td className="p-3">{a.user?.telefono}</td>
                 <td className="p-3">{a.service?.name}</td>
                 <td className="p-3">

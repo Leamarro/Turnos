@@ -6,10 +6,12 @@ import Link from "next/link";
 type Client = {
   id: string;
   name: string;
+  lastName: string;
   telefono: string;
   totalAppointments: number;
   lastAppointment: string | null;
 };
+
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -37,14 +39,11 @@ export default function ClientsPage() {
           <tbody>
             {clients.map((c) => (
               <tr key={c.id} className="border-t hover:bg-gray-50">
-                <td className="p-3">
-                  <Link
-                    href={`/clients/${c.id}`}
-                    className="font-medium underline"
-                  >
-                    {c.name}
-                  </Link>
-                </td>
+              <td className="p-3">
+                <Link href={`/clients/${c.id}`} className="font-medium underline">
+                  {c.name} {c.lastName}
+                </Link>
+              </td>
                 <td className="p-3">{c.telefono}</td>
                 <td className="p-3 text-center">
                   {c.totalAppointments}

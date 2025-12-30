@@ -126,3 +126,40 @@ input:focus, select:focus, textarea:focus {
   outline: none;
   box-shadow: 0 0 0 1px #111;
 }
+
+
+.custom-timepicker .react-time-picker {
+  width: 100%;
+}
+
+.custom-timepicker .react-time-picker__wrapper {
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.custom-timepicker .react-time-picker__inputGroup__input {
+  outline: none;
+}
+
+/* ===== Time Picker custom ===== */
+
+.custom-timepicker .react-time-picker {
+  width: 100%;
+}
+
+.custom-timepicker .react-time-picker__wrapper {
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: white;
+}
+
+.custom-timepicker .react-time-picker__inputGroup__input {
+  outline: none;
+  font-size: 0.875rem;
+}
+
+.custom-timepicker .react-time-picker__button {
+  display: none;
+}

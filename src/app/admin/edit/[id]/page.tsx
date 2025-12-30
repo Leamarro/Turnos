@@ -4,15 +4,25 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 type Service = { id: string; name: string };
+
 type Appointment = {
   id: string;
   date?: string;
   status?: string;
-  user?: { id: string; name?: string; telefono?: string };
+  user?: {
+    id: string;
+    name?: string;
+    lastName?: string;
+    telefono?: string;
+  };
   service?: { id: string; name?: string };
 };
 
-export default function EditAppointmentPage({ params }: { params: { id: string } }) {
+export default function EditAppointmentPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const id = params.id;
   const router = useRouter();
 
@@ -21,6 +31,7 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
 
   // Campos editables
   const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [telefono, setTelefono] = useState("");
   const [serviceId, setServiceId] = useState("");
   const [date, setDate] = useState("");
@@ -36,13 +47,15 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
         const a: Appointment = ap.data;
         setAppointment(a);
 
-        // Manejo seguro de campos opcionales
+        // Datos del usuario
         setName(a.user?.name || "");
+        setLastName(a.user?.lastName || "");
         setTelefono(a.user?.telefono || "");
+
         setServiceId(a.service?.id || "");
         setStatus(a.status || "pendiente");
 
-        // Manejo seguro de fecha
+        // Fecha y hora
         if (a.date) {
           const d = new Date(a.date);
           if (!isNaN(d.getTime())) {
@@ -51,10 +64,10 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
           }
         }
 
-        setServices(sv.data || []);
+        setServices(Array.isArray(sv.data) ? sv.data : []);
       } catch (err) {
         console.error(err);
-        alert("Error al cargar la cita o los servicios");
+        alert("Error al cargar el turno o los servicios");
       }
     }
 
@@ -62,15 +75,16 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
   }, [id]);
 
   async function handleSave() {
-    if (!name.trim() || !telefono.trim()) {
-      alert("El nombre y teléfono no pueden estar vacíos.");
+    if (!name.trim() || !lastName.trim() || !telefono.trim()) {
+      alert("Nombre, apellido y teléfono no pueden estar vacíos.");
       return;
     }
 
     try {
       await axios.put(`/api/appointments?id=${id}`, {
-        name,
-        telefono,
+        name: name.trim(),
+        lastName: lastName.trim(),
+        telefono: telefono.trim(),
         serviceId,
         date,
         time,
@@ -81,7 +95,7 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
       router.push("/admin");
     } catch (err) {
       console.error(err);
-      alert("Error al guardar");
+      alert("Error al guardar los cambios");
     }
   }
 
@@ -113,6 +127,16 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
         />
       </label>
 
+      {/* Apellido */}
+      <label className="block text-sm font-medium">
+        Apellido
+        <input
+          className="mt-1 block w-full border rounded-lg p-2"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+        />
+      </label>
+
       {/* Teléfono */}
       <label className="block text-sm font-medium">
         Teléfono
@@ -131,6 +155,7 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
           value={serviceId}
           onChange={(e) => setServiceId(e.target.value)}
         >
+          <option value="">Seleccionar servicio</option>
           {services.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name || "Sin nombre"}
