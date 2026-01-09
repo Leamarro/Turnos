@@ -163,7 +163,7 @@ export async function PUT(request: Request) {
 }
 
 
-    // ✅ Actualizar usuario
+    //  Actualizar usuario
 await prisma.user.update({
   where: { id: existingAppointment.userId },
   data: {
