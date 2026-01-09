@@ -1,35 +1,32 @@
-"use client";
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-//cambios
+"use client";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
 type Client = {
   id: string;
   name: string;
-  lastName: string;
+  lastName?: string;
   telefono: string;
   totalAppointments: number;
   lastAppointment: string | null;
 };
 
-
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
 
   useEffect(() => {
-    fetch("/api/clients")
+    fetch("/api/clients", { cache: "no-store" })
       .then((res) => res.json())
       .then(setClients);
   }, []);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-4">
-  CLIENTES NUEVO — {new Date().toISOString()}
-</h1>
-
+      <h1 className="text-2xl font-bold mb-4">Clientes</h1>
 
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <table className="w-full text-sm">
@@ -44,11 +41,14 @@ export default function ClientsPage() {
           <tbody>
             {clients.map((c) => (
               <tr key={c.id} className="border-t hover:bg-gray-50">
-              <td className="p-3">
-                <Link href={`/clients/${c.id}`} className="font-medium underline">
-                  {c.name} {c.lastName}
-                </Link>
-              </td>
+                <td className="p-3">
+                  <Link
+                    href={`/clients/${c.id}`}
+                    className="font-medium underline"
+                  >
+                    {c.name} {c.lastName ?? ""}
+                  </Link>
+                </td>
                 <td className="p-3">{c.telefono}</td>
                 <td className="p-3 text-center">
                   {c.totalAppointments}
