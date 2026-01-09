@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
     const date = searchParams.get("date");
+console.log("🔥 API NUEVA - CAMBIO CONFIRMADO");
 
     const isValidId = id && id !== "undefined" && id.trim() !== "";
 

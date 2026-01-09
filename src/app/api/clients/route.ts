@@ -1,24 +1,23 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const clients = await prisma.user.findMany({
       include: {
         appointments: {
-          include: {
-            service: true,
-          },
+          include: { service: true },
         },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
 
     const formatted = clients.map((c) => ({
       id: c.id,
       name: c.name,
+      lastName: c.lastName ?? "",
       telefono: c.telefono,
       totalAppointments: c.appointments.length,
       lastAppointment:
