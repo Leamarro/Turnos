@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 // =========================
-// GET — obtener turno(s)
+// GET — obtener turnos
 // =========================
 export async function GET(request: Request) {
   try {
