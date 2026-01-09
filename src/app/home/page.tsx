@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 "use client";
 
 import CalendarGrid from "@/components/CalendarGrid";
