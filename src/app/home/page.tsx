@@ -26,7 +26,6 @@ export default function HomePage() {
       const data = await res.json();
 
       if (!Array.isArray(data)) {
-        console.error("API returned invalid data", data);
         setAppointments([]);
         return;
       }
@@ -34,9 +33,7 @@ export default function HomePage() {
       const formatted: Appointment[] = data.map((a: any) => ({
         id: a.id,
         date: new Date(a.date).toISOString(),
-        service: {
-          name: a.service?.name ?? "",
-        },
+        service: { name: a.service?.name ?? "" },
         user: {
           name: a.user?.name ?? "",
           lastName: a.user?.lastName ?? "",

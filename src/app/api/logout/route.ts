@@ -1,8 +1,17 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
 export async function POST() {
-  // Borra la cookie de sesión
-  const response = NextResponse.json({ success: true })
-  response.cookies.set('token', '', { path: '/', maxAge: 0 })
-  return response
+  const response = NextResponse.json({ ok: true });
+
+  response.cookies.set("token", "", {
+    path: "/",
+    expires: new Date(0),
+  });
+
+  response.cookies.set("username", "", {
+    path: "/",
+    expires: new Date(0),
+  });
+
+  return response;
 }

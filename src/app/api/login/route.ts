@@ -1,12 +1,30 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
-export async function POST() {
-  // Simula login exitoso, setea cookie "token"
-  const response = NextResponse.json({ success: true })
-  response.cookies.set('token', 'fake-token', {
+export async function POST(request: Request) {
+  const { password } = await request.json();
+
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return NextResponse.json(
+      { error: "Contraseña incorrecta" },
+      { status: 401 }
+    );
+  }
+
+  const response = NextResponse.json({ ok: true });
+
+  // Cookie de sesión
+  response.cookies.set("token", "admin", {
     httpOnly: true,
-    path: '/',
-    maxAge: 60 * 60 * 24, // 1 día
-  })
-  return response
+    path: "/",
+    sameSite: "lax",
+  });
+
+  // Cookie con nombre de usuario (solo UI)
+  response.cookies.set("username", "Admin", {
+    httpOnly: false,
+    path: "/",
+    sameSite: "lax",
+  });
+
+  return response;
 }

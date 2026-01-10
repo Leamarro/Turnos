@@ -1,22 +1,27 @@
-import { withAuth } from "next-auth/middleware"
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default withAuth(
-  function middleware() {},
-  {
-    pages: {
-      signIn: "/login",
-    },
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (
+    pathname === "/login" ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
   }
-)
+
+  const token = request.cookies.get("token")?.value;
+
+  if (!token) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: [
-    /*
-      Protege todo MENOS:
-      - login
-      - nextauth
-      - assets
-    */
-    "/((?!login|api/auth|_next|favicon.ico).*)",
-  ],
-}
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};
