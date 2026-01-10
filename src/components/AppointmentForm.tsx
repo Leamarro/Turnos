@@ -1,100 +1,131 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import axios from "axios";
 
-type Service = { id: string; name: string; duration: number; price: number };
+import { useEffect, useState } from "react";
+import axios from "axios";
+import TimePicker from "react-time-picker";
+
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
+
+type Service = {
+  id: string;
+  name: string;
+};
 
 export default function AppointmentForm() {
   const [services, setServices] = useState<Service[]>([]);
   const [serviceId, setServiceId] = useState("");
+
   const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [telefono, setTelefono] = useState("");
+
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  const [time, setTime] = useState<string | null>(null);
+
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    async function fetchServices() {
-      const res = await fetch("/api/services");
-      const data = await res.json();
-      setServices(data);
-      if (data.length > 0) setServiceId(data[0].id);
-    }
-    fetchServices();
+    axios.get("/api/services").then((res) => setServices(res.data));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
+    setMessage("");
+
+    if (!name || !lastName || !telefono || !date || !time || !serviceId) {
+      setMessage("Por favor completá todos los campos.");
+      return;
+    }
 
     try {
+      const dateTime = new Date(`${date}T${time}`);
+
       await axios.post("/api/appointments", {
         name,
+        lastName,
         telefono,
-        date,
-        time,
         serviceId,
+        date: dateTime.toISOString(),
       });
 
-      setMessage("Turno reservado correctamente ✅");
-    } catch (err) {
-      console.error(err);
-      setMessage("Error al reservar turno ❌");
+      setMessage("✅ Turno reservado con éxito!");
+
+      setName("");
+      setLastName("");
+      setTelefono("");
+      setDate("");
+      setTime(null);
+      setServiceId("");
+    } catch (error) {
+      console.error(error);
+      setMessage("❌ Error al reservar el turno.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow space-y-4">
-      <input
-        required
-        placeholder="Nombre"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="input w-full"
-      />
+    <div className="bg-white shadow-lg rounded-2xl p-6 max-w-md mx-auto">
+      <h2 className="text-2xl font-semibold text-center mb-4">
+        Reservar Turno
+      </h2>
 
-      <input
-        required
-        placeholder="Teléfono"
-        value={telefono}
-        onChange={(e) => setTelefono(e.target.value)}
-        className="input w-full"
-      />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          placeholder="Nombre"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full border rounded-xl p-2"
+        />
 
-      <select
-        required
-        value={serviceId}
-        onChange={(e) => setServiceId(e.target.value)}
-        className="input w-full"
-      >
-        {services.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.name} - {s.duration} min
-          </option>
-        ))}
-      </select>
+        <input
+          placeholder="Apellido"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          className="w-full border rounded-xl p-2"
+        />
 
-      <input
-        required
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        className="input w-full"
-      />
+        <input
+          placeholder="Teléfono"
+          value={telefono}
+          onChange={(e) => setTelefono(e.target.value)}
+          className="w-full border rounded-xl p-2"
+        />
 
-      <input
-        required
-        type="time"
-        value={time}
-        onChange={(e) => setTime(e.target.value)}
-        className="input w-full"
-      />
+        <select
+          value={serviceId}
+          onChange={(e) => setServiceId(e.target.value)}
+          className="w-full border rounded-xl p-2"
+        >
+          <option value="">Seleccioná un servicio</option>
+          {services.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
 
-      <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded">
-        Reservar turno
-      </button>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="w-full border rounded-xl p-2"
+        />
 
-      {message && <p className="text-sm text-green-600">{message}</p>}
-    </form>
+        <TimePicker
+          value={time}
+          onChange={setTime}
+          disableClock
+          format="HH:mm"
+        />
+
+        <button className="w-full bg-black text-white py-2 rounded-xl">
+          Confirmar turno
+        </button>
+
+        {message && (
+          <p className="text-center text-sm mt-2">{message}</p>
+        )}
+      </form>
+    </div>
   );
 }

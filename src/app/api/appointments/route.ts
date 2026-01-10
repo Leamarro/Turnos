@@ -10,15 +10,11 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
     const date = searchParams.get("date");
-console.log("🔥 API NUEVA - CAMBIO CONFIRMADO");
 
-    const isValidId = id && id !== "undefined" && id.trim() !== "";
-
-    // ✅ Obtener turno por ID
-    if (isValidId) {
+    if (id) {
       const appointment = await prisma.appointment.findUnique({
         where: { id },
-        include: { user: true, service: true },
+        include: { service: true },
       });
 
       if (!appointment) {
@@ -31,7 +27,6 @@ console.log("🔥 API NUEVA - CAMBIO CONFIRMADO");
       return NextResponse.json(appointment);
     }
 
-    // ✅ Obtener todos los turnos o por fecha
     const appointments = await prisma.appointment.findMany({
       where: date
         ? {
@@ -41,87 +36,55 @@ console.log("🔥 API NUEVA - CAMBIO CONFIRMADO");
             },
           }
         : {},
-      include: { user: true, service: true },
+      include: { service: true },
       orderBy: { date: "asc" },
     });
 
     return NextResponse.json(appointments);
   } catch (error) {
-    console.error("❌ ERROR GET APPOINTMENTS:", error);
+    console.error(error);
     return NextResponse.json(
-      { error: "No se pudieron cargar los turnos" },
+      { error: "Error cargando turnos" },
       { status: 500 }
     );
   }
 }
 
+
 // =========================
-// POST — crear turno ✅ (ESTO FALTABA)
+// POST — crear turno 
 // =========================
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
+    const { name, lastName, telefono, serviceId, date } = await req.json();
 
-    const {
-      date,
-      user: { name, lastName, phone },
-      service: { id: serviceId },
-    } = body;
-
-    if (!date || !serviceId || !name || !lastName || !phone) {
+    if (!name || !lastName || !telefono || !serviceId || !date) {
       return NextResponse.json(
-        { error: "Faltan datos obligatorios" },
+        { error: "Datos incompletos" },
         { status: 400 }
       );
     }
 
-    const service = await prisma.service.findUnique({
-      where: { id: serviceId },
-    });
-
-    if (!service) {
-      return NextResponse.json(
-        { error: "El servicio no existe" },
-        { status: 404 }
-      );
-    }
-
-    // ✅ Crear o actualizar usuario (por teléfono)
-    const user = await prisma.user.upsert({
-      where: { telefono: phone },
-      update: {
-        name,
-        lastName,
-      },
-      create: {
-        name,
-        lastName,
-        telefono: phone,
-      },
-    });
-
     const appointment = await prisma.appointment.create({
       data: {
-        date: new Date(date),
+        name,
+        lastName,
+        telefono,
         serviceId,
-        userId: user.id,
-        status: "pendiente",
-      },
-      include: {
-        user: true,
-        service: true,
+        date: new Date(date),
       },
     });
 
-    return NextResponse.json(appointment, { status: 201 });
+    return NextResponse.json(appointment);
   } catch (error) {
-    console.error("❌ ERROR CREATE APPOINTMENT:", error);
+    console.error("Error creando turno:", error);
     return NextResponse.json(
-      { error: "No se pudo crear el turno" },
+      { error: "Error interno" },
       { status: 500 }
     );
   }
 }
+
 
 
 // =========================
@@ -132,67 +95,31 @@ export async function PUT(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
-    const isValidId = id && id !== "undefined" && id.trim() !== "";
-
-    if (!isValidId) {
-      return NextResponse.json(
-        { error: "ID requerido" },
-        { status: 400 }
-      );
+    if (!id) {
+      return NextResponse.json({ error: "ID requerido" }, { status: 400 });
     }
 
-    const body = await request.json();
-    const { name, lastName, telefono, serviceId, date, time, status } = body;
+    const { name, lastName, telefono, serviceId, date, time, status } =
+      await request.json();
 
-
-    const existingAppointment = await prisma.appointment.findUnique({
-      where: { id },
-    });
-
-    if (!existingAppointment) {
-      return NextResponse.json(
-        { error: "Turno no encontrado" },
-        { status: 404 }
-      );
-    }
-
-    if (!existingAppointment.userId) {
-  return NextResponse.json(
-    { error: "El turno no tiene usuario asociado" },
-    { status: 400 }
-  );
-}
-
-
-    //  Actualizar usuario
-await prisma.user.update({
-  where: { id: existingAppointment.userId },
-  data: {
-    name,
-    lastName,
-    telefono,
-  },
-});
-
-
-
-    // ✅ Combinar fecha y hora
     const dateTime = new Date(`${date}T${time}`);
 
-    // ✅ Actualizar turno
-    const updatedAppointment = await prisma.appointment.update({
+    const updated = await prisma.appointment.update({
       where: { id },
       data: {
-        date: dateTime,
+        name,
+        lastName,
+        telefono,
         serviceId,
+        date: dateTime,
         status,
       },
-      include: { user: true, service: true },
+      include: { service: true },
     });
 
-    return NextResponse.json(updatedAppointment);
+    return NextResponse.json(updated);
   } catch (error) {
-    console.error("❌ ERROR UPDATE APPOINTMENT:", error);
+    console.error(error);
     return NextResponse.json(
       { error: "No se pudo actualizar el turno" },
       { status: 500 }
@@ -208,27 +135,18 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
-    const isValidId = id && id !== "undefined" && id.trim() !== "";
-
-    if (!isValidId) {
-      return NextResponse.json(
-        { error: "ID requerido" },
-        { status: 400 }
-      );
+    if (!id) {
+      return NextResponse.json({ error: "ID requerido" }, { status: 400 });
     }
 
-    await prisma.appointment.delete({
-      where: { id },
-    });
+    await prisma.appointment.delete({ where: { id } });
 
-    return NextResponse.json({
-      message: "Turno eliminado correctamente",
-    });
+    return NextResponse.json({ message: "Turno eliminado" });
   } catch (error) {
-    console.error("❌ ERROR DELETE APPOINTMENT:", error);
     return NextResponse.json(
       { error: "No se pudo eliminar el turno" },
       { status: 500 }
     );
   }
 }
+
